@@ -16,7 +16,10 @@ def toHex(s):
 def strxor(s1, s2):
     return "".join(map(lambda x, y: chr(ord(x) ^ ord(y)), s1, s2))
 
-def rkf_des_mac(plain, key):
+def truncate(hash):
+    return hash[0:2]
+
+def rkf_des_mac(plain, key, full=0):
     iv = "\x00"*8
 
     padding_length = (8-(len(plain) % 8))%8
@@ -33,7 +36,10 @@ def rkf_des_mac(plain, key):
         curPlain = plain[i:(i+8)]
         mac = des_obj.encrypt(strxor(curPlain, mac))
                 
-    return mac;
+    if full:
+        return mac
+    else:
+        return truncate(mac)
 
 
 key = "\x01\x23\x45\x67\x89\xab\xcd\xef"
@@ -46,5 +52,6 @@ plains = ["7654321 Now is the time for ",
 
 for plain in plains:
     print "Hashing: \n"+plain+"\n"+toHex(plain)+"\n"
-    print toHex(rkf_des_mac(plain, key));
+    mac = rkf_des_mac(plain, key, 1)
+    print toHex(truncate(mac))+" ("+toHex(mac)+")"
     print "\n----\n"
